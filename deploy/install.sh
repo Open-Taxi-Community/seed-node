@@ -70,7 +70,9 @@ else
     fi
 fi
 
-go build -o /usr/local/bin/seed-node ./cmd/seed-node
+#TAG=$(git describe --tags)
+TAG="v0.0.1"
+go build -ldflags="-X main.version=$TAG" -o /usr/local/bin/seed-node ./cmd/seed-node
 sudo chmod +x /usr/local/bin/seed-node
 sudo chown seed-node:seed-node /usr/local/bin/seed-node
 echo "Go installation is complete. Please restart your shell or re-login to apply PATH changes."
