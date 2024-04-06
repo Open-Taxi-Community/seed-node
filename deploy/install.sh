@@ -6,27 +6,70 @@ if [ "$(id -u)" -ne 0 ]; then
   exit 1
 fi
 
-# Download Go
-GO_VERSION=go1.22.0 # Make sure to use the latest version
-wget https://golang.org/dl/${GO_VERSION}.linux-amd64.tar.gz -O /tmp/go.tar.gz
+# Desired Go version
+DESIRED_VERSION="1.22"
 
-# Remove any previous installation
-rm -rf /usr/local/go
+# Function to extract version numbers for comparison
+extract_version() {
+    echo "$1" | grep -oP 'go\K\d+\.\d+'
+}
 
-# Extract Go to /usr/local
-tar -C /usr/local -xzf /tmp/go.tar.gz
+install_go() {
+    local GO_VERSION="go1.22.0" # Make sure to use the latest version
 
-# Clean up
-rm /tmp/go.tar.gz
+    echo "Downloading Go ${GO_VERSION}..."
+    wget https://golang.org/dl/${GO_VERSION}.linux-amd64.tar.gz -O /tmp/go.tar.gz
 
-# Set up Go PATH for all users
-# Add Go to the PATH in /etc/profile (for shell login)
-if ! grep -q "/usr/local/go/bin" /etc/profile; then
-  echo "export PATH=\$PATH:/usr/local/go/bin" >> /etc/profile
+    echo "Removing any previous Go installation..."
+    rm -rf /usr/local/go
+
+    echo "Extracting Go to /usr/local..."
+    tar -C /usr/local -xzf /tmp/go.tar.gz
+
+    echo "Cleaning up..."
+    rm /tmp/go.tar.gz
+
+    # Set up Go PATH for all users
+    # Add Go to the PATH in /etc/profile (for shell login)
+    if ! grep -q "/usr/local/go/bin" /etc/profile; then
+      echo "export PATH=\$PATH:/usr/local/go/bin" >> /etc/profile
+    fi
+
+    echo "Go ${GO_VERSION} installation is complete."
+}
+
+# Check if Go is installed
+if command -v go >/dev/null 2>&1; then
+    # Go is installed, check version
+    INSTALLED_VERSION=$(extract_version "$(go version)")
+
+    # Compare versions
+    if [ "$INSTALLED_VERSION" = "$DESIRED_VERSION" ]; then
+        echo "Go version $DESIRED_VERSION is already installed."
+    else
+        echo "Detected Go version $INSTALLED_VERSION. Required version is $DESIRED_VERSION."
+        read -p "Do you want to install Go $DESIRED_VERSION? [Y/n] " response
+        if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]
+        then
+            echo "Proceeding with Go $DESIRED_VERSION installation..."
+            install_go
+        else
+            echo "Skipping Go installation."
+        fi
+    fi
+else
+    echo "Go is not installed."
+    read -p "Do you want to install Go $DESIRED_VERSION? [Y/n] " response
+    if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]
+    then
+        echo "Proceeding with Go $DESIRED_VERSION installation..."
+        install_go
+    else
+        echo "Skipping Go installation."
+    fi
 fi
 
-export PATH=$PATH:/usr/local/go/bin
-go build -o /usr/local/bin/seed-node ./cmd/seed-node
+/usr/local/go/bin build -o /usr/local/bin/seed-node ./cmd/seed-node
 sudo chmod +x /usr/local/bin/seed-node
 sudo chown seed-node:seed-node /usr/local/bin/seed-node
 echo "Go installation is complete. Please restart your shell or re-login to apply PATH changes."
@@ -46,10 +89,6 @@ else
   useradd -r -m -d /var/lib/seed-node -s /bin/false -g seed-node seed-node
   echo "User seed-node created and added to group seed-node."
 fi
-
-chown seed-node:seed-node /var/lib/seed-node
-chmod 770 /var/lib/seed-node
-echo "User seed-node has been set up."
 
 sudo cp packaging/systemd/seed-node.service /etc/systemd/system/
 sudo systemctl daemon-reload
