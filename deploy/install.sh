@@ -38,8 +38,9 @@ install_go() {
     echo "Go ${GO_VERSION} installation is complete."
 }
 
+export "PATH=$PATH:/usr/local/go/bin"
 # Check if Go is installed
-if command -v /usr/local/go/bin/go >/dev/null 2>&1; then
+if command -v go >/dev/null 2>&1; then
     # Go is installed, check version
     INSTALLED_VERSION=$(extract_version "$(go version)")
 
@@ -69,7 +70,7 @@ else
     fi
 fi
 
-/usr/local/go/bin build -o /usr/local/bin/seed-node ./cmd/seed-node
+go build -o /usr/local/bin/seed-node ./cmd/seed-node
 sudo chmod +x /usr/local/bin/seed-node
 sudo chown seed-node:seed-node /usr/local/bin/seed-node
 echo "Go installation is complete. Please restart your shell or re-login to apply PATH changes."
