@@ -91,6 +91,24 @@ else
   echo "User seed-node created and added to group seed-node."
 fi
 
+# Desired maximum UDP buffer sizes (in bytes)
+RMEM_MAX=2129920
+WMEM_MAX=2129920
+
+# Backup the original sysctl.conf file
+cp /etc/sysctl.conf /etc/sysctl.conf.backup
+
+# Update /etc/sysctl.conf with desired UDP buffer sizes
+echo "Updating UDP buffer size settings..."
+echo "net.core.rmem_max=$RMEM_MAX" >> /etc/sysctl.conf
+echo "net.core.wmem_max=$WMEM_MAX" >> /etc/sysctl.conf
+
+# Apply the changes
+echo "Applying changes..."
+sysctl -p
+
+echo "UDP buffer size settings updated successfully."
+
 sudo cp packaging/systemd/seed-node.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable seed-node.service
