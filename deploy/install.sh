@@ -7,7 +7,7 @@ if [ "$(id -u)" -ne 0 ]; then
 fi
 
 # Desired Go version
-DESIRED_VERSION="1.22"
+DESIRED_VERSION="1.22.0"
 
 # Function to extract version numbers for comparison
 extract_version() {
@@ -39,7 +39,7 @@ install_go() {
 }
 
 # Check if Go is installed
-if command -v go >/dev/null 2>&1; then
+if command -v /usr/local/go/bin/go >/dev/null 2>&1; then
     # Go is installed, check version
     INSTALLED_VERSION=$(extract_version "$(go version)")
 
