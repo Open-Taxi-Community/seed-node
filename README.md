@@ -21,7 +21,7 @@ The seed node acts as an initial point of contact for new nodes joining the netw
 ```
    git clone https://github.com/Open-Taxi-Community/seed-node.git
    cd seed-node
-   sudo ./install.sh
+   sudo ./deploy/install.sh
 ```
 
 This script will:
