@@ -1,0 +1,12 @@
+[Unit]
+Description=Seed Node
+After=network.target
+
+[Service]
+User=seed-node
+Group=seed-node
+ExecStart=/usr/local/bin/seed-node
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
