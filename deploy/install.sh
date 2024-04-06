@@ -11,7 +11,7 @@ DESIRED_VERSION="1.22.0"
 
 # Function to extract version numbers for comparison
 extract_version() {
-    echo "$1" | grep -oP 'go\K\d+\.\d+'
+    echo "$1" | grep -oP 'go\K\d+\.\d+.\d+'
 }
 
 install_go() {
