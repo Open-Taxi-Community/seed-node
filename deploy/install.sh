@@ -25,11 +25,6 @@ if ! grep -q "/usr/local/go/bin" /etc/profile; then
   echo "export PATH=\$PATH:/usr/local/go/bin" >> /etc/profile
 fi
 
-# Add Go to the PATH in /etc/environment (for GUI login)
-if ! grep -q "/usr/local/go/bin" /etc/environment; then
-  # Assuming /usr/local/go/bin is not already in the PATH
-  echo "PATH=\"\$PATH:/usr/local/go/bin\"" >> /etc/environment
-fi
 export PATH=$PATH:/usr/local/go/bin
 go build -o /usr/local/bin/seed-node ./cmd/seed-node
 sudo chmod +x /usr/local/bin/seed-node
